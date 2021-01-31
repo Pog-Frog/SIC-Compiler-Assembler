@@ -1,4 +1,3 @@
-##SIC-assembler and compiler
 This is a compiler written in python for a custom High level language inspired by the PASCAL language that compiles it to sic machine assembly instructions 
 An assembler is also included to translate the sic assembly files to object code
 #Phase 1: Lexical Analysis Lexical analysis involves scanning the program to be compiled, and recognizing the Tokens that make the source program This analysis aims to generate a Stream of Tokens, each token is represented by a fixed-length code, the hole output is represented by a table that contains the line number and Stream of tokens in the line. The Scanner using a Token coding scheme for recognizing each token and assign a unique code for each token, The Tokens' Table used in this project can be found at "Leland L. Beck, D. Manjula-System Software_ An Introduction To Systems Programming-Pearson India (1997)"
