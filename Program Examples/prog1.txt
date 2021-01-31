@@ -1,0 +1,19 @@
+PROGRAM SUMPROG
+INT X =  10
+INT Y = 20
+INT m = 5
+INT N = 56
+INT M = 6
+INT sum = 0
+BEGIN
+X = X - Y * m + M
+IF X < Y DO
+X = X + Y
+ENDIF
+FOR I = X TO Y DO
+    SUM = SUM + N - M
+ENDFOR
+IF X < Y DO
+X = X + Y
+ENDIF
+END
