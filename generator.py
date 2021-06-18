@@ -8,6 +8,7 @@ op_vars = {}
 if_stat = False
 loop_stat = False
 new_line = True
+repeat = False
 
 reg_a = False  # true means in use
 sub_op = ""
@@ -53,11 +54,21 @@ def get_begin():
 def declare_vars():
     f = open(filename, 'a')
     for key, value in op_vars.items():
-        if isInteger(value):
-            f.write("\n{} WORD {}".format(key, value))
-        else:
-            f.write("\n{} BYTE {}".format(key, value))
+        if is_used(key):
+            if isInteger(value):
+                f.write("\n{} WORD {}".format(key, value))
+            else:
+                f.write("\n{} BYTE {}".format(key, value))
     f.close()
+
+
+def is_used(var):
+    f = open(filename, "r")
+    lines = f.readlines()
+    for line in lines:
+        if var in line.strip().split():
+            return True
+    return False
 
 
 def mul(line, op_ind):
@@ -334,11 +345,22 @@ def div(line, op_ind):
     f.close()
 
 
-def equate(line, op_ind):
+def equate(line, op_ind, ld=False):
+    global new_line
     f = open(filename, 'a')
+    if new_line:
+        f.write(f"\nL{line_count}\t")
+    else:
+        f.write("\n\t")
     if len(line) == 3 and line[1] == "=" and line[2] not in operators:
-        f.write(f"\n\tSTA {line[0]}")
-        return line
+        if not ld:
+            f.write(f"STA {line[0]}")
+            f.close()
+            return line
+        else:
+            f.write(f"LDA {line[2]}\n\tSTA {line[0]}")
+            f.close()
+            return line
     f.close()
 
 
@@ -352,46 +374,83 @@ def core():
     global FOR_bound1
     global FOR_bound2
     global FOR_line
+    global repeat
     op = []
-    for key ,value in op_lines.items():
+    tmp_repeated_lines = []
+    r_count = 0
+    r_lines = {}
+    r_lines_rand_vars = {}
+    break1 = 0
+    for key, value in op_lines.items():
+        if key not in tmp_repeated_lines:
+            r_lines[key] = []
+        for key1, value1 in op_lines.items():
+            if not (key == key1) and value[2:] == value1[
+                                                  2:] and key not in IF_lines.keys() and key not in FOR_lines.keys() and key not in tmp_repeated_lines:
+                op_vars["tmp" + str(r_count)] = str(0)
+                tmp_repeated_lines.append(key1)
+                r_lines[key].append(key1)
+                r_lines_rand_vars[key] = str("tmp" + str(r_count))
+                r_count += 1
+
+    for key, value in op_lines.items():
         if key not in IF_lines.keys() and key not in FOR_lines.keys():
+            break1 = 0
             op.clear()
             new_line = True
             operand1 = ""
             line = op_lines[key]
+
             for i in range(len(line)):
                 if line[i] in operators:
                     op.append(line[i])
             op = op_sort(op)
-            for i in range(len(op)):
-                for j in range(len(line)):
-                    if op[i] == line[j]:
-                        if op[i] == "*":
-                            line = mul(line, j)
-                            new_line = False
+            if key in tmp_repeated_lines:
+                for ky_tmp, value_tmp in r_lines.items():
+                    for item in value_tmp:
+                        if key == item:
+                            line = line[:3]
+                            line[2] = r_lines_rand_vars[ky_tmp]
+                            line = equate(line, 1, True)
+                            line_count += 1
+                            break1 = 1
                             break
-                        elif op[i] == "+":
-                            line = add(line, j)
-                            new_line = False
-                            break
-                        elif op[i] == "-":
-                            reg_a = False
-                            line = sub(line, j)
-                            new_line = False
-                            break
-                        elif op[i] == "/":
-                            reg_a = False
-                            line = div(line, j)
-                            new_line = False
-                            break
-                        elif op[i] == "=":
-                            line = equate(line, j)
-                            new_line = False
-                            break
-            line_count +=1
+                    if break1 == 1:
+                        break
+            if break1 == 0:
+                for i in range(len(op)):
+                    for j in range(len(line)):
+                        if op[i] == line[j] and not repeat:
+                            if op[i] == "*":
+                                line = mul(line, j)
+                                new_line = False
+                                break
+                            elif op[i] == "+":
+                                line = add(line, j)
+                                new_line = False
+                                break
+                            elif op[i] == "-":
+                                reg_a = False
+                                line = sub(line, j)
+                                new_line = False
+                                break
+                            elif op[i] == "/":
+                                reg_a = False
+                                line = div(line, j)
+                                new_line = False
+                                break
+                            elif op[i] == "=":
+                                line = equate(line, j)
+                                new_line = False
+                                break
+                if key in r_lines_rand_vars.keys():
+                    f = open(filename, 'a')
+                    f.write(f"\n\tSTA {r_lines_rand_vars[key]}")
+                    f.close()
+                line_count += 1
         elif key in IF_lines.keys() and key not in FOR_lines.keys():
             if key in IF_lines.keys():
-                f = open(filename , 'a')
+                f = open(filename, 'a')
                 if_op1 = IF_lines[key][0]
                 if_op2 = IF_lines[key][2]
                 if_op = IF_lines[key][1]
@@ -415,9 +474,86 @@ def core():
                     if line[i] in operators:
                         op.append(line[i])
                 op = op_sort(op)
+                if key in tmp_repeated_lines:
+                    for ky_tmp, value_tmp in r_lines.items():
+                        for item in value_tmp:
+                            if key == item and key > ky_tmp:
+                                line = line[:3]
+                                line[2] = r_lines_rand_vars[ky_tmp]
+                                line = equate(line, 1, True)
+                                line_count += 1
+                                break1 = 1
+                                break
+                        if break1 == 1:
+                            break
+                if break1 == 0:
+                    for i in range(len(op)):
+                        for j in range(len(line)):
+                            if op[i] == line[j] and not repeat:
+                                if op[i] == "*":
+                                    line = mul(line, j)
+                                    new_line = False
+                                    break
+                                elif op[i] == "+":
+                                    line = add(line, j)
+                                    new_line = False
+                                    break
+                                elif op[i] == "-":
+                                    reg_a = False
+                                    line = sub(line, j)
+                                    new_line = False
+                                    break
+                                elif op[i] == "/":
+                                    reg_a = False
+                                    line = div(line, j)
+                                    new_line = False
+                                    break
+                                elif op[i] == "=":
+                                    line = equate(line, j)
+                                    new_line = False
+                                    break
+                    if key in r_lines_rand_vars.keys():
+                        f = open(filename, 'a')
+                        f.write(f"\n\tSTA {r_lines_rand_vars[key]}")
+                        f.close()
+                    line_count += 1
+        else:
+            f = open(filename, "a")
+            FOR_bound1 = FOR_lines[key][2]
+            FOR_bound2 = FOR_lines[key][4]
+            f.write(f"\nL{line_count}\tLDX {FOR_bound1}")
+            line_count += 1
+            f.write(f"\nL{line_count}\tLDA {FOR_bound1}\n\tCOMP {FOR_bound2}")
+            if list(op_lines).index(key) < len(list(op_lines)) - 1:
+                f.write(f"\n\tJGT L{line_count + 2}")
+            else:
+                f.write(f"\n\t JGT EXIT")
+            f.close()
+            line_count += 1
+            op.clear()
+            new_line = True
+            operand1 = ""
+            line = op_lines[key]
+            for i in range(len(line)):
+                if line[i] in operators:
+                    op.append(line[i])
+            op = op_sort(op)
+            if key in tmp_repeated_lines:
+                for ky_tmp, value_tmp in r_lines.items():
+                    for item in value_tmp:
+                        if key == item:
+                            line = line[:3]
+                            line[2] = r_lines_rand_vars[ky_tmp]
+                            line = equate(line, 1, True)
+                            line_count += 1
+                            break1 = 1
+                            break
+                    if break1 == 1:
+                        break
+            if break1 == 0:
                 for i in range(len(op)):
                     for j in range(len(line)):
-                        if op[i] == line[j]:
+                        if op[i] == line[j] and not repeat:
                             if op[i] == "*":
                                 line = mul(line, j)
                                 new_line = False
@@ -440,57 +576,14 @@ def core():
                                 line = equate(line, j)
                                 new_line = False
                                 break
+                if key in r_lines_rand_vars.keys():
+                    f = open(filename, 'a')
+                    f.write(f"\n\tSTA {r_lines_rand_vars[key]}")
+                    f.close()
+                f = open(filename, "a")
+                f.write(f"\n\tTIX\n\tSTX {FOR_bound1}\n\tJ L{line_count - 1}")
+                f.close()
                 line_count += 1
-        else:
-            f = open(filename , "a")
-            FOR_bound1 = FOR_lines[key][2]
-            FOR_bound2 = FOR_lines[key][4]
-            f.write(f"\nL{line_count}\tLDX {FOR_bound1}")
-            line_count += 1
-            f.write(f"\nL{line_count}\tLDA {FOR_bound1}\n\tCOMP {FOR_bound2}")
-            if list(op_lines).index(key) < len(list(op_lines)) - 1:
-                f.write(f"\n\tJGT L{line_count + 2}")
-            else:
-                f.write(f"\n\t JGT EXIT")
-            f.close()
-            line_count += 1
-            op.clear()
-            new_line = True
-            operand1 = ""
-            line = op_lines[key]
-            for i in range(len(line)):
-                if line[i] in operators:
-                    op.append(line[i])
-            op = op_sort(op)
-            for i in range(len(op)):
-                for j in range(len(line)):
-                    if op[i] == line[j]:
-                        if op[i] == "*":
-                            line = mul(line, j)
-                            new_line = False
-                            break
-                        elif op[i] == "+":
-                            line = add(line, j)
-                            new_line = False
-                            break
-                        elif op[i] == "-":
-                            reg_a = False
-                            line = sub(line, j)
-                            new_line = False
-                            break
-                        elif op[i] == "/":
-                            reg_a = False
-                            line = div(line, j)
-                            new_line = False
-                            break
-                        elif op[i] == "=":
-                            line = equate(line, j)
-                            new_line = False
-                            break
-            f = open(filename, "a")
-            f.write(f"\n\tTIX\n\tSTX {FOR_bound1}\n\tJ L{line_count - 1}")
-            f.close()
-            line_count += 1
 
 
 get_vars()
