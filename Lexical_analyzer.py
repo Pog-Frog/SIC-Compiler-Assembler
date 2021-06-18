@@ -337,10 +337,7 @@ for i in lines:
             result['token_type'].append("keyword")
             result['token_specifier'].append('FOR')
             result['line_no'].append(ln_cnt)
-            if tmp_ln[1] not in keywords and tmp_ln[1] not in delimiters and tmp_ln[1] not in operators and not tmp_ln[
-                                                                                                                    1] in \
-                                                                                                                result[
-                                                                                                                    'token_specifier']:  # counter variable
+            if tmp_ln[1] not in keywords and tmp_ln[1] not in delimiters and tmp_ln[1] not in operators and not tmp_ln[1] in result['token_specifier']:  # counter variable
                 result['token_type'].append("id")
                 result['token_specifier'].append(tmp_ln[1])
                 result['line_no'].append(ln_cnt)
