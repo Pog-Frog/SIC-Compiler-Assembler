@@ -10,6 +10,7 @@ X = X - Y * m + M
 IF X < Y DO
 X = X + Y
 ENDIF
+X = X + Y
 FOR I = X TO Y DO
     SUM = SUM + N - M
 ENDFOR

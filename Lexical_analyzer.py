@@ -1,4 +1,4 @@
-filename = "Program Examples/prog2"
+filename = "Program Examples/prog1"
 
 operators = ['/', '*', '+', '-', '=']
 if_operators = ['<', '>', '==']
@@ -6,13 +6,16 @@ delimiters = [':', ',']
 keywords = ['PROGRAM', 'END', 'INT', 'CHAR', 'BEGIN', 'READ',
             'WRITE', 'FOR', 'TO', 'DO', 'IF', 'ENDFOR', 'ENDIF']
 
-ref_codes = {'PROGRAM': "1", 'INT': "2", 'CHAR': "3", 'BEGIN': "4", 'READ': "5", 'WRITE': "6", 'FOR': "7", 'TO': "8", 'DO': "9", 'END': "10", 'IF': "11", ':': "12", ',': "13",
-             '=': "14", '+': "15", '-': "16", '*': "17", '/': "18", 'id': "19", 'integer': "20", 'string': "21", 'ENDFOR': "22", 'ENDIF': "23"}
+ref_codes = {'PROGRAM': "1", 'INT': "2", 'CHAR': "3", 'BEGIN': "4", 'READ': "5", 'WRITE': "6", 'FOR': "7", 'TO': "8",
+             'DO': "9", 'END': "10", 'IF': "11", ':': "12", ',': "13",
+             '=': "14", '+': "15", '-': "16", '*': "17", '/': "18", 'id': "19", 'integer': "20", 'string': "21",
+             'ENDFOR': "22", 'ENDIF': "23"}
 
 ref_table = {'token': ['PROGRAM', 'INT', 'CHAR', 'BEGIN', 'READ', 'WRITE', 'FOR', 'TO', 'DO', 'END', 'IF', ':', ',',
-                       '=', '+', '-', '*', '/', 'id', 'integer', 'string', 'ENDFOR' 'ENDIF'], 'code': ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11',
-                                                                                                       '12', '13',
-                                                                                                       '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']}
+                       '=', '+', '-', '*', '/', 'id', 'integer', 'string', 'ENDFOR' 'ENDIF'],
+             'code': ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11',
+                      '12', '13',
+                      '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']}
 
 
 def check_begin(lines, line_cnt):
@@ -27,7 +30,7 @@ def check_int(line):
         return False
     for i in range(1, len(line)):
         if line[i] == "=":
-            if isInteger(line[i+1]):
+            if isInteger(line[i + 1]):
                 return True
             return False
         return True
@@ -93,7 +96,7 @@ def check_comma(line):
 def check_declaration(variable, filename):
     if not check_str(variable):
         return False
-    tmp = open(filename+".txt", "r")
+    tmp = open(filename + ".txt", "r")
     s = ""
     for string in list(tmp):
         s += string.strip()
@@ -105,7 +108,7 @@ def check_declaration(variable, filename):
 
 
 def checK_loopEND(ln_cnt, file):
-    tmp = open(filename+".txt", "r")
+    tmp = open(filename + ".txt", "r")
     for i in list(tmp):
         if "ENDFOR" in i:
             tmp.close()
@@ -115,7 +118,7 @@ def checK_loopEND(ln_cnt, file):
 
 
 def check_ifEND(ln_cnt, file):
-    tmp = open(filename+".txt", "r")
+    tmp = open(filename + ".txt", "r")
     for i in list(tmp):
         if "ENDIF" in i:
             tmp.close()
@@ -148,9 +151,9 @@ result = {'token_type': [], 'token_specifier': [],
 op_lines = {}
 IF_lines = {}
 FOR_lines = {}
-f = open(filename+".txt", "r")
+f = open(filename + ".txt", "r")
 ln1 = f.readline().strip().split()
-if not(ln1[0] == "PROGRAM") or len(ln1) != 2:
+if not (ln1[0] == "PROGRAM") or len(ln1) != 2:
     print("ERROR the start of the program isn't identified or ERROR in the program name")
     exit(0)
 result['token_type'].append("keyword")
@@ -273,11 +276,11 @@ for i in lines:
             result['line_no'].append(ln_cnt)
             ln_cnt += 1
             continue
-        elif tmp_ln[0] in keywords and tmp_ln[0] == "IF" and END_mrk ==  0:   ##IF
+        elif tmp_ln[0] in keywords and tmp_ln[0] == "IF" and END_mrk == 0:  ##IF
             if len(tmp_ln) != 5:
                 print("Syntax Error in line: ", ln_cnt)
                 exit(0)
-            if not check_ifEND(ln_cnt , filename):
+            if not check_ifEND(ln_cnt, filename):
                 print("Missing ENDIF in loop in line: ", ln_cnt)
                 exit(0)
             else:
@@ -307,7 +310,7 @@ for i in lines:
                 result['token_type'].append(ref_table['token'][19])  # INTEGER
                 result['token_specifier'].append(tmp_ln[3])
                 result['line_no'].append(ln_cnt)
-            elif check_declaration(tmp_ln[3] , filename):
+            elif check_declaration(tmp_ln[3], filename):
                 result['token_type'].append('id')  ##id
                 result['token_specifier'].append(tmp_ln[3])
                 result['line_no'].append(ln_cnt)
@@ -322,7 +325,7 @@ for i in lines:
             IF_ln_cnt = ln_cnt
             ln_cnt += 1
             continue
-        elif tmp_ln[0] in keywords and tmp_ln[0] == "FOR" and END_IF_mrk ==  0:
+        elif tmp_ln[0] in keywords and tmp_ln[0] == "FOR" and END_IF_mrk == 0:
             if len(tmp_ln) < 7:
                 print("Syntax Error in line: ", ln_cnt)
                 exit(0)
@@ -334,7 +337,10 @@ for i in lines:
             result['token_type'].append("keyword")
             result['token_specifier'].append('FOR')
             result['line_no'].append(ln_cnt)
-            if tmp_ln[1] not in keywords and tmp_ln[1] not in delimiters and tmp_ln[1] not in operators and not tmp_ln[1] in result['token_specifier']:  # counter variable
+            if tmp_ln[1] not in keywords and tmp_ln[1] not in delimiters and tmp_ln[1] not in operators and not tmp_ln[
+                                                                                                                    1] in \
+                                                                                                                result[
+                                                                                                                    'token_specifier']:  # counter variable
                 result['token_type'].append("id")
                 result['token_specifier'].append(tmp_ln[1])
                 result['line_no'].append(ln_cnt)
@@ -398,5 +404,5 @@ if tmp_mrk == 0:
 
 print("TOKEN TYPE\tTOKEN SPECIFIER\t\tLINE COUNT\n")
 for i in range(len(result['token_type'])):
-    print(str(result["token_type"][i])+"\t\t" +
-          str(result["token_specifier"][i])+"\t\t\t"+str(result["line_no"][i]))
+    print(str(result["token_type"][i]) + "\t\t" +
+          str(result["token_specifier"][i]) + "\t\t\t" + str(result["line_no"][i]))
