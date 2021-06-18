@@ -6,10 +6,8 @@ delimiters = [':', ',']
 keywords = ['PROGRAM', 'END', 'INT', 'CHAR', 'BEGIN', 'READ',
             'WRITE', 'FOR', 'TO', 'DO', 'IF', 'ENDFOR', 'ENDIF']
 
-ref_codes = {'PROGRAM': "1", 'INT': "2", 'CHAR': "3", 'BEGIN': "4", 'READ': "5", 'WRITE': "6", 'FOR': "7", 'TO': "8",
-             'DO': "9", 'END': "10", 'IF': "11", ':': "12", ',': "13",
-             '=': "14", '+': "15", '-': "16", '*': "17", '/': "18", 'id': "19", 'integer': "20", 'string': "21",
-             'ENDFOR': "22", 'ENDIF': "23"}
+ref_codes = {'PROGRAM': "1", 'INT': "2", 'CHAR': "3", 'BEGIN': "4", 'READ': "5", 'WRITE': "6", 'FOR': "7", 'TO': "8", 'DO': "9", 'END': "10", 'IF': "11",
+             ':': "12", ',': "13", '=': "14", '+': "15", '-': "16", '*': "17", '/': "18", 'id': "19", 'integer': "20", 'string': "21", 'ENDFOR': "22", 'ENDIF': "23"}
 
 ref_table = {'token': ['PROGRAM', 'INT', 'CHAR', 'BEGIN', 'READ', 'WRITE', 'FOR', 'TO', 'DO', 'END', 'IF', ':', ',',
                        '=', '+', '-', '*', '/', 'id', 'integer', 'string', 'ENDFOR' 'ENDIF'],
@@ -276,7 +274,7 @@ for i in lines:
             result['line_no'].append(ln_cnt)
             ln_cnt += 1
             continue
-        elif tmp_ln[0] in keywords and tmp_ln[0] == "IF" and END_mrk == 0:  ##IF
+        elif tmp_ln[0] in keywords and tmp_ln[0] == "IF" and END_mrk == 0:  # IF
             if len(tmp_ln) != 5:
                 print("Syntax Error in line: ", ln_cnt)
                 exit(0)
@@ -293,7 +291,7 @@ for i in lines:
                 result['token_specifier'].append(tmp_ln[1])
                 result['line_no'].append(ln_cnt)
             elif check_declaration(tmp_ln[1], filename):
-                result['token_type'].append('id')  ##id
+                result['token_type'].append('id')  # id
                 result['token_specifier'].append(tmp_ln[1])
                 result['line_no'].append(ln_cnt)
             else:
@@ -303,7 +301,7 @@ for i in lines:
                 print("Syntax Error in line: ", ln_cnt)
                 exit(0)
             else:
-                result['token_type'].append('operator')  ##operator
+                result['token_type'].append('operator')  # operator
                 result['token_specifier'].append(tmp_ln[2])
                 result['line_no'].append(ln_cnt)
             if isInteger(tmp_ln[3]):
@@ -311,11 +309,11 @@ for i in lines:
                 result['token_specifier'].append(tmp_ln[3])
                 result['line_no'].append(ln_cnt)
             elif check_declaration(tmp_ln[3], filename):
-                result['token_type'].append('id')  ##id
+                result['token_type'].append('id')  # id
                 result['token_specifier'].append(tmp_ln[3])
                 result['line_no'].append(ln_cnt)
             if tmp_ln[4] == "DO" and END_IF_mrk == 1:
-                result['token_type'].append('keyword')  ##id
+                result['token_type'].append('keyword')  # id
                 result['token_specifier'].append(tmp_ln[4])
                 result['line_no'].append(ln_cnt)
             else:

@@ -42,7 +42,7 @@ def get_vars():
     for i in range(2, get_begin()):
         if result['token_type'][i] == "id":
             op_vars[result['token_specifier'][i]
-            ] = result['token_specifier'][i + 2]
+                    ] = result['token_specifier'][i + 2]
 
 
 def get_begin():
@@ -386,7 +386,7 @@ def core():
             r_lines[key] = []
         for key1, value1 in op_lines.items():
             if not (key == key1) and value[2:] == value1[
-                                                  2:] and key not in IF_lines.keys() and key not in FOR_lines.keys() and key not in tmp_repeated_lines:
+                    2:] and key not in IF_lines.keys() and key not in FOR_lines.keys() and key not in tmp_repeated_lines:
                 op_vars["tmp" + str(r_count)] = str(0)
                 tmp_repeated_lines.append(key1)
                 r_lines[key].append(key1)
@@ -455,11 +455,14 @@ def core():
                 if_op2 = IF_lines[key][2]
                 if_op = IF_lines[key][1]
                 if if_op == "<":
-                    f.write(f"\nL{line_count}\tLDA {if_op1}\n\tCOMP {if_op2}\n\tJLT L{line_count + 1}")
+                    f.write(
+                        f"\nL{line_count}\tLDA {if_op1}\n\tCOMP {if_op2}\n\tJLT L{line_count + 1}")
                 elif if_op == ">":
-                    f.write(f"\nL{line_count}\tLDA {if_op1}\n\tCOMP {if_op2}\n\tJGT L{line_count + 1}")
+                    f.write(
+                        f"\nL{line_count}\tLDA {if_op1}\n\tCOMP {if_op2}\n\tJGT L{line_count + 1}")
                 elif if_op == "==":
-                    f.write(f"\nL{line_count}\tLDA {if_op1}\n\tCOMP {if_op2}\n\tJEQ L{line_count + 1}")
+                    f.write(
+                        f"\nL{line_count}\tLDA {if_op1}\n\tCOMP {if_op2}\n\tJEQ L{line_count + 1}")
                 if list(op_lines).index(key) < len(list(op_lines)) - 1:
                     f.write(f"\n\tJ L{line_count + 2}")
                 else:
